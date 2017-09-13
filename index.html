@@ -20,7 +20,12 @@
                 right: !1,
                 forward: !1,
                 backward: !1
-            }, document.addEventListener("keydown", this.onKey.bind(this, !0), !1), document.addEventListener("keyup", this.onKey.bind(this, !1), !1), document.addEventListener("touchstart", this.onTouch.bind(this), !1), document.addEventListener("touchmove", this.onTouch.bind(this), !1), document.addEventListener("touchend", this.onTouchEnd.bind(this), !1)
+            },
+                document.addEventListener("keydown", this.onKey.bind(this, !0), !1),
+                document.addEventListener("keyup", this.onKey.bind(this, !1), !1),
+                document.addEventListener("touchstart", this.onTouch.bind(this), !1),
+                document.addEventListener("touchmove", this.onTouch.bind(this), !1),
+                document.addEventListener("touchend", this.onTouchEnd.bind(this), !1)
         }
 
         function Bitmap(t, i, e) {
@@ -28,15 +33,25 @@
         }
 
         function Player(t, i, e) {
-            this.x = t, this.y = i, this.direction = e, this.weapon = new Bitmap("assets/knife_hand.png", 319, 320), this.paces = 0
+            this.x = t, this.y = i, this.direction = e, this.weapon = new Bitmap("assets/torch2.png", 319, 320), this.paces = 0
         }
 
         function Map(t) {
-            this.size = t, this.wallGrid = new Uint8Array(t * t), this.skybox = new Bitmap("assets/deathvalley_panorama.jpg", 2e3, 750), this.wallTexture = new Bitmap("assets/wall_texture.jpg", 1024, 1024), this.light = 0
+            this.size = t, this.wallGrid = new Uint8Array(t * t), this.skybox = new Bitmap("assets/deathvalley_panorama.png", 2e3, 750), this.wallTexture = new Bitmap("assets/wall_texture.png", 64, 64), this.light = 0
         }
 
         function Camera(t, i, e) {
-            this.ctx = t.getContext("2d"), this.width = t.width = .5 * window.innerWidth, this.height = t.height = .5 * window.innerHeight, this.resolution = i, this.spacing = this.width / i, this.focalLength = e || .8, this.range = MOBILE ? 8 : 14, this.lightRange = 5, this.scale = (this.width + this.height) / 1200
+            var halfWidth = t.width = .5 * window.innerWidth;
+            var halfHeight = t.height = .5 * window.innerHeight;
+            this.ctx = t.getContext("2d"),
+                this.width = halfWidth,
+                this.height = halfHeight,
+                this.resolution = i,
+                this.spacing = this.width / i,
+                this.focalLength = e || .8,
+                this.range = MOBILE ? 8 : 14,
+                this.lightRange = 5,
+                this.scale = (this.width + this.height) / 1200
         }
 
         function GameLoop() {
@@ -71,10 +86,21 @@
             i.get(this.x + e, this.y) <= 0 && (this.x += e), i.get(this.x, this.y + a) <= 0 && (this.y += a), this.paces += t
         }, Player.prototype.update = function(t, i, e) {
             t.left && this.rotate(-Math.PI * e), t.right && this.rotate(Math.PI * e), t.forward && this.walk(3 * e, i), t.backward && this.walk(-3 * e, i)
+            if (this.y > 32)
+                alert("escaped!");
         }, Map.prototype.get = function(t, i) {
             return t = Math.floor(t), i = Math.floor(i), t < 0 || t > this.size - 1 || i < 0 || i > this.size - 1 ? -1 : this.wallGrid[i * this.size + t]
         }, Map.prototype.randomize = function() {
-            for (var t = 0; t < this.size * this.size; t++) this.wallGrid[t] = Math.random() < .3 ? 1 : 0
+            for (var t = 0; t < this.size * this.size; t++) {
+                maptext= "0000000000000000000000000000000001111011111101111111111110111110011110111111011111111011101111100111101111110110111110111011111001111011011101101111101110110110011111110111011011111011101101100111111101110110110000000111011001111111011111101111111111110110000000000111111011111111111101100111111111100000001111111111011001111111111101111000000111110110011111110111011111111101111111100111111101110110111111011101111001110111011101100000110111101110011101110111011011101101111101100111011101111111111000011011101001110111011111111111011111011100011101110000000111110111110111100111011111011111111100000110000001110111110111111111111101111110011100000001111111111111000001100111111101111111000000111111011000000111011111111011011111110110011111110110000000110111111101100111101101111111111101111011011001100011011111111111000000110110011010111000000111110111101100000110101111111111111111111000011001111100000000000000000001111110011111111111111111111111111111100111111111111111111111111111111000000000000000000000000000000010"
+                var number = Math.random();
+                var tr = (t<32 || t>992 || t%32==0 || t%32==31);
+                tr = (t==40) ? 1 :tr;
+                tr=maptext[t]=='0'? true : false
+                number = (tr ? .1 : .7);//alert (t)
+                this.wallGrid[t] = number < .3 ? 1 : 0
+            }
+
         }, Map.prototype.cast = function(t, i, e) {
             function a(t) {
                 var i = h(n, r, t.x, t.y),
@@ -112,13 +138,17 @@
                 distance: 0
             })
         }, Map.prototype.update = function(t) {
-            this.light > 0 ? this.light = Math.max(this.light - 10 * t, 0) : 5 * Math.random() < t && (this.light = 2)
+            this.light > 0 ? this.light = Math.max(this.light - 10 * t, 0) : 5 * Math.random() < t && (this.light = 2 )
         }, Camera.prototype.render = function(t, i) {
             this.drawSky(t.direction, i.skybox, i.light), this.drawColumns(t, i), this.drawWeapon(t.weapon, t.paces)
         }, Camera.prototype.drawSky = function(t, i, e) {
             var a = i.width * (this.height / i.height) * 2,
                 h = t / CIRCLE * -a;
-            this.ctx.save(), this.ctx.drawImage(i.image, h, 0, a, this.height), h < a - this.width && this.ctx.drawImage(i.image, h + a, 0, a, this.height), e > 0 && (this.ctx.fillStyle = "#ffffff", this.ctx.globalAlpha = .1 * e, this.ctx.fillRect(0, .5 * this.height, this.width, .5 * this.height)), this.ctx.restore()
+            this.ctx.save(),
+                this.ctx.drawImage(i.image, h, 0, a, this.height),
+            h < a - this.width && this.ctx.drawImage(i.image, h + a, 0, a, this.height),
+            e > 0 && (this.ctx.fillStyle = "#ffffff", this.ctx.globalAlpha = .1 * e, this.ctx.fillRect(0, .5 * this.height, this.width, .5 * this.height)),
+                this.ctx.restore()
         }, Camera.prototype.drawColumns = function(t, i) {
             this.ctx.save();
             for (var e = 0; e < this.resolution; e++) {
@@ -127,6 +157,9 @@
                     o = i.cast(t, t.direction + h, this.range);
                 this.drawColumn(e, o, h, i)
             }
+
+            this.ctx.font = "30px Arial";
+            this.ctx.fillText("DON'T LOOK BACK",250,50);
             this.ctx.restore()
         }, Camera.prototype.drawWeapon = function(t, i) {
             var e = Math.cos(2 * i) * this.scale * 6,
@@ -161,7 +194,7 @@
             this.lastTime = t, i < .2 && this.callback(i), requestAnimationFrame(this.frame)
         };
         var display = document.getElementById("display"),
-            player = new Player(15.3, -1.2, .3 * Math.PI),
+            player = new Player(2.3, 2.2, .3 * Math.PI),
             map = new Map(32),
             controls = new Controls,
             camera = new Camera(display, MOBILE ? 160 : 320, .8),
