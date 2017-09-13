@@ -138,7 +138,7 @@
                 distance: 0
             })
         }, Map.prototype.update = function(t) {
-            this.light > 0 ? this.light = Math.max(this.light - 10 * t, 0) : 5 * Math.random() < t && (this.light = 2 )
+            this.light > 0 ? this.light = Math.max(this.light - 10 * t, 0) : 5 * Math.random() < 0*t && (this.light = 2 )
         }, Camera.prototype.render = function(t, i) {
             this.drawSky(t.direction, i.skybox, i.light), this.drawColumns(t, i), this.drawWeapon(t.weapon, t.paces)
         }, Camera.prototype.drawSky = function(t, i, e) {
@@ -178,7 +178,7 @@
                         f = this.project(c.height, e, c.distance);
                     h.globalAlpha = 1, h.drawImage(o.image, g, 0, 1, o.height, s, f.top, n, f.height), h.fillStyle = "#000000", h.globalAlpha = Math.max((c.distance + c.shading) / this.lightRange - a.light, 0), h.fillRect(s, f.top, n, f.height)
                 }
-                for (h.fillStyle = "#ffffff", h.globalAlpha = .15; --d > 0;) h.fillRect(s, Math.random() * p.top, 1, p.height)
+                for (h.fillStyle = "", h.globalAlpha = .15; --d > 0;) h.fillRect(s, Math.random() * p.top, 1, p.height)
             }
         }, Camera.prototype.project = function(t, i, e) {
             var a = e * Math.cos(i),
